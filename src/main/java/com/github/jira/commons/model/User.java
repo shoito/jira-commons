@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @SuppressWarnings("serial")
 public class User extends Entity {
@@ -17,6 +19,24 @@ public class User extends Entity {
 	@Override
 	public String toString() {
 		return getDisplayName();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(getName()).toHashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != getClass()) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+
+		User target = (User) o;
+		return new EqualsBuilder().append(getName(), target.getName()).isEquals();
 	}
 	
 	public String getSelf() {

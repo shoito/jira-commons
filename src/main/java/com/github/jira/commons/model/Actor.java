@@ -1,6 +1,8 @@
 package com.github.jira.commons.model;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @SuppressWarnings("serial")
 public class Actor extends Entity {
@@ -12,6 +14,23 @@ public class Actor extends Entity {
 	@Override
 	public String toString() {
 		return getName();
+	}
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(getId()).toHashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != getClass()) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+
+		Actor target = (Actor) o;
+		return new EqualsBuilder().append(getId(), target.getId()).isEquals();
 	}
 	
 	public String getId() {

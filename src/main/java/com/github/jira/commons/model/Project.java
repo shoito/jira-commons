@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @SuppressWarnings("serial")
 public class Project extends Entity {
@@ -24,6 +26,24 @@ public class Project extends Entity {
 	@Override
 	public String toString() {
 		return getName();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(getId()).toHashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != getClass()) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+
+		Project target = (Project) o;
+		return new EqualsBuilder().append(getId(), target.getId()).isEquals();
 	}
 	
 	public String getSelf() {

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.github.jira.commons.util.DateUtils;
 
@@ -24,6 +26,24 @@ public class Attachment extends Entity {
 	@Override
 	public String toString() {
 		return getFilename();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(getId()).toHashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || o.getClass() != getClass()) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+
+		Attachment target = (Attachment) o;
+		return new EqualsBuilder().append(getId(), target.getId()).isEquals();
 	}
 	
 	public String getSelf() {
