@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
+import org.restlet.Context;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
@@ -24,6 +24,7 @@ import com.github.jira.commons.model.SearchResults;
 
 public class JiraClient {
 	private static final Logger logger = LoggerFactory.getLogger(JiraClient.class);
+	private static final String DEFAULT_TIMEOUT = "1500";
 	private String context = "http://localhost:8080/jira/";
 	private String userName = "";
 	private String password = "";
@@ -72,14 +73,19 @@ public class JiraClient {
 	public boolean isConnectable() {
 		boolean connectable = false;
 		
-		ClientResource resource = new ClientResource(context);
+		ClientResource resource = new ClientResource(new Context(), context);
+		resource.getContext().getParameters().add("socketTimeout", DEFAULT_TIMEOUT);
 		resource.setRetryOnError(false);
+		Representation representation = null;
 		try {
-			resource.get();
+			representation = resource.get();
 			Status status = resource.getStatus();
 			connectable = status.isSuccess();
 		} catch (Exception e) {
 			logger.info("Failed connect to JIRA", e);
+		} finally {
+			if (representation != null) representation.release();
+			if (resource != null) resource.release();
 		}
 		return connectable;
 	}
@@ -92,14 +98,16 @@ public class JiraClient {
 		Project project = null;
 		
 		ClientResource resource = createClientResource(relativeUrl + "/" + projectKey);
+		Representation representation = null;
 		try {
-			Representation representation = resource.get();
+			representation = resource.get();
 			if (representation != null) {
 				project = new ObjectMapper().readValue(representation.getStream(), Project.class);
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 
@@ -114,14 +122,16 @@ public class JiraClient {
 		List<Map<String, Object>> resultMap = new ArrayList<Map<String, Object>>();
 		
 		ClientResource resource = createClientResource(relativeUrl);
+		Representation representation = null;
 		try {
-			Representation representation = resource.get();
+			representation = resource.get();
 			if (representation != null) {
 				resultMap = new ObjectMapper().readValue(representation.getStream(), List.class);
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 		
@@ -141,14 +151,16 @@ public class JiraClient {
 		List<Map<String, Object>> resultMap = new ArrayList<Map<String, Object>>();
 		
 		ClientResource resource = createClientResource(relativeUrl);
+		Representation representation = null;
 		try {
-			Representation representation = resource.get();
+			representation = resource.get();
 			if (representation != null) {
 				resultMap = new ObjectMapper().readValue(representation.getStream(), List.class);
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 		
@@ -168,14 +180,16 @@ public class JiraClient {
 		List<Map<String, Object>> resultMap = new ArrayList<Map<String, Object>>();
 		
 		ClientResource resource = createClientResource(relativeUrl);
+		Representation representation = null;
 		try {
-			Representation representation = resource.get();
+			representation = resource.get();
 			if (representation != null) {
 				resultMap = new ObjectMapper().readValue(representation.getStream(), List.class);
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 		
@@ -194,14 +208,16 @@ public class JiraClient {
 		List<Map<String, Object>> resultMap = new ArrayList<Map<String, Object>>();
 		
 		ClientResource resource = createClientResource(relativeUrl);
+		Representation representation = null;
 		try {
-			Representation representation = resource.get();
+			representation = resource.get();
 			if (representation != null) {
 				resultMap = new ObjectMapper().readValue(representation.getStream(), List.class);	
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 		
@@ -218,14 +234,16 @@ public class JiraClient {
 		SearchResults resultMap = new SearchResults();
 		
 		ClientResource resource = createClientResource(relativeUrl);
+		Representation representation = null;
 		try {
-			Representation representation = resource.post(new JsonRepresentation(requestParams));
+			representation = resource.post(new JsonRepresentation(requestParams));
 			if (representation != null) {
 				resultMap = new ObjectMapper().readValue(representation.getStream(), SearchResults.class);
 			}
 		} catch (Exception e) {
 			throw new JiraRequestException("Request to failed", e);
 		} finally {
+			if (representation != null) representation.release();
 			if (resource != null) resource.release();
 		}
 		
@@ -233,10 +251,12 @@ public class JiraClient {
 	}
 
 	private ClientResource createClientResource(String relativeUrl) {
-		ClientResource resource = new ClientResource(context + relativeUrl);
+		ClientResource resource = new ClientResource(new Context(), context + relativeUrl);
 		if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password)) {
 			resource.setChallengeResponse(ChallengeScheme.HTTP_BASIC, userName, password);
 		}
+		resource.getContext().getParameters().add("socketTimeout", DEFAULT_TIMEOUT);
+		resource.setRetryOnError(false);
 		return resource;
 	}
 	
@@ -247,8 +267,8 @@ public class JiraClient {
 		
 		JiraClient client = new JiraClient("http://localhost:2990/jira", userName, password);
 		
-//		Project mp = client.getProject("MP");
-//		System.out.println(mp.getId() + "," + mp.getKey() + " : " + mp.getName());
+		Project mp = client.getProject("MP");
+		System.out.println(mp.getId() + "," + mp.getKey() + " : " + mp.getName());
 		
 //		List<Priority> priorities = client.getPriorities();
 //		for (Priority priority : priorities) {
