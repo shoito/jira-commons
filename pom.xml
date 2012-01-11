@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.jira</groupId>
 	<artifactId>jira-commons</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 	<name>JIRA commons library</name>
 	<description>JRJCと違い大量の課題の詳細情報までを扱えるようにしている</description>
